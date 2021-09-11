@@ -1,5 +1,5 @@
 const model = require('../models/products');
-const { validateName, validateQuantity } = require('../schemas/ProductSchema');
+const { validateName, validateQuantity, validateGetProduct } = require('../schemas/ProductSchema');
 
 const create = async (products) => {
   const { name, quantity } = products;
@@ -24,6 +24,22 @@ const create = async (products) => {
   return newProduct;
 };
 
+const getProductById = async (id) => {
+  const getProduct = await model.getProductById(id);
+
+  const validateProducts = await validateGetProduct(getProduct);
+
+  return validateProducts;
+};
+
+const getAllProducts = async () => {
+  const getAll = await model.getAllProducts();
+
+  return getAll;
+};
+
 module.exports = {
   create,
+  getProductById,
+  getAllProducts,
 };
