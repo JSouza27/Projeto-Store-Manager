@@ -60,9 +60,20 @@ const updateProduct = async (id, name, quantity) => {
   return result;
 };
 
+const removeProduct = async (id) => {
+  const isProduct = await getProductById(id);
+
+  const validateProducts = await validateGetProduct(isProduct);
+
+  await model.removeProduct(id);
+
+  return validateProducts;
+};
+
 module.exports = {
   create,
   getProductById,
   getAllProducts,
   updateProduct,
+  removeProduct,
 };

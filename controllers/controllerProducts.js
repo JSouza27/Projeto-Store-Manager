@@ -50,9 +50,24 @@ const updateProduct = async (req, res) => {
   return res.status(HTTP_OK_STATUS).json(updateResult);
 };
 
+const removeProduct = async (req, res) => {
+  const { id } = req.params;
+
+  const deleteResult = await service.removeProduct(id);
+
+  if (deleteResult.message) {
+    return res.status(HTTP_UNPROCESSABLE_ENTITY).json({
+      err: deleteResult,
+  });
+  }
+
+  return res.status(HTTP_OK_STATUS).json(deleteResult);
+};
+
 module.exports = {
   create,
   getProductById,
   getAllProducts,
   updateProduct,
+  removeProduct,
 };
