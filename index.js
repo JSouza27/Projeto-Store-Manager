@@ -1,5 +1,6 @@
 const express = require('express');
 const productRouter = require('./routers/productRouters');
+const salesRouters = require('./routers/salesRouters');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -12,5 +13,6 @@ app.get('/', (_request, response) => {
 });
 
 app.use('/products', productRouter);
+app.use('/sales', salesRouters);
 
 app.listen(PORT, () => { console.log(`Ouvindo a porta ${PORT}`); });
