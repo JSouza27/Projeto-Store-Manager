@@ -38,8 +38,31 @@ const getAllProducts = async () => {
   return getAll;
 };
 
+const updateProduct = async (id, name, quantity) => {
+  let result = {};
+
+  const validationName = await validateName(name);
+  const validationQuantity = await validateQuantity(quantity);
+
+  if (validationName.message) return validationName;
+  if (validationQuantity.message) return validationQuantity;
+
+  const product = await model.updateProduct(id, name, quantity);
+
+  if (product.result.ok === 1) {
+      result = {
+        id,
+        name,
+        quantity,
+    };
+  }
+
+  return result;
+};
+
 module.exports = {
   create,
   getProductById,
   getAllProducts,
+  updateProduct,
 };
