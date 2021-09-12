@@ -23,7 +23,26 @@ const register = async (sale) => {
   return db;
 };
 
+const getAllSales = async () => {
+  const connect = await connection();
+  const db = await connect.collection(TABLE).find({}).toArray();
+  return db;
+};
+
+const getSalesById = async (id) => {
+  if (!ObjectId.isValid(id)) {
+    return null;
+  }
+
+  const connect = await connection();
+  const searchSale = await connect.collection(TABLE).findOne(new ObjectId(id)).toArray();
+
+  return searchSale;
+};
+
 module.exports = {
   register,
   findSales,
+  getAllSales,
+  getSalesById,
 };
