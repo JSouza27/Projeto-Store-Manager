@@ -39,8 +39,22 @@ const getSalesById = async (req, res) => {
   return res.status(HTTP_OK_STATUS).json({ sales: getSale });
 };
 
+const updateSale = async (req, res) => {
+  const itensSold = req.body;
+  const { id } = req.params;
+
+  const newSale = await service.updateSale({ itensSold }, id);
+
+  if (newSale.code) {
+    return res.status(HTTP_UNPROCESSABLE_ENTITY).json({ err: newSale });
+  }
+  console.log(newSale);
+  return res.status(HTTP_OK_STATUS).json(newSale);
+};
+
 module.exports = {
   register,
   getAllSales,
   getSalesById,
+  updateSale,
 };

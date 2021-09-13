@@ -44,7 +44,7 @@ const updateProduct = async (req, res) => {
   if (updateResult.message) {
     return res.status(HTTP_UNPROCESSABLE_ENTITY).json({
       err: updateResult,
-  });
+    });
   }
 
   return res.status(HTTP_OK_STATUS).json(updateResult);

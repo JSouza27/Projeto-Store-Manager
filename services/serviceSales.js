@@ -44,8 +44,30 @@ const getSalesById = async (id) => {
   return sale;
 };
 
+const updateSale = async (product, id) => {
+  const { itensSold } = product;
+  const validation = await validateQuantity(itensSold);
+
+  if (validation) {
+    return {
+        code: 'invalid_data',
+        message: 'Wrong product ID or invalid quantity',
+      };
+  }
+
+  await model.updateSale(product, id);
+
+  const result = {
+    _id: id,
+    itensSold,
+  };
+  console.log(result.id);
+  return result;
+};
+
 module.exports = {
   register,
   getAllSales,
   getSalesById,
+  updateSale,
 };

@@ -35,9 +35,25 @@ const getSalesById = async (id) => {
   }
 
   const connect = await connection();
-  const searchSale = await connect.collection(TABLE).findOne(new ObjectId(id)).toArray();
+  const searchSale = await connect.collection(TABLE).findOne({
+    sales: { $elemMatch: { _id: new ObjectId(id) } },
+  });
 
   return searchSale;
+};
+
+const updateSale = async (product, id) => {
+  if (!ObjectId.isValid(id)) {
+    return null;
+  }
+
+  const connect = await connection();
+  const updateQuery = await connect.collection(TABLE).updateOne(
+    { _id: ObjectId(id) },
+    { $set: product },
+  );
+
+  return updateQuery;
 };
 
 module.exports = {
@@ -45,4 +61,5 @@ module.exports = {
   findSales,
   getAllSales,
   getSalesById,
+  updateSale,
 };
