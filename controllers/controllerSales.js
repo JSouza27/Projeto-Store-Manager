@@ -5,10 +5,10 @@ const {
   HTTP_NOT_FOUND,
 } = require('../middlewares/HttpStatus');
 
-const register = async (req, res) => {
+const createSale = async (req, res) => {
   const sales = req.body;
 
-  const newSale = await service.register(sales);
+  const newSale = await service.createSale(sales);
 
   if (newSale.code) {
     return res.status(HTTP_UNPROCESSABLE_ENTITY).json({ err: newSale });
@@ -48,13 +48,26 @@ const updateSale = async (req, res) => {
   if (newSale.code) {
     return res.status(HTTP_UNPROCESSABLE_ENTITY).json({ err: newSale });
   }
-  console.log(newSale);
+
   return res.status(HTTP_OK_STATUS).json(newSale);
 };
 
+const deleteSale = async (req, res) => {
+  const { id } = req.params;
+
+  const isDelete = await service.deleteSale(id);
+
+  if (isDelete.code === 'invalid_data') {
+    return res.status(HTTP_UNPROCESSABLE_ENTITY).json({ err: isDelete });
+  }
+
+  return res.status(HTTP_OK_STATUS).json(isDelete);
+};
+
 module.exports = {
-  register,
+  createSale,
   getAllSales,
   getSalesById,
   updateSale,
+  deleteSale,
 };

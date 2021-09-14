@@ -3,7 +3,7 @@ const model = require('../models/sales');
 const validateQuantity = (sale) => sale.some(({ quantity }) =>
   quantity < 1 || typeof quantity !== 'number');
 
-const register = async (sale) => {
+const createSale = async (sale) => {
   const validation = await validateQuantity(sale);
 
   if (validation) {
@@ -13,7 +13,7 @@ const register = async (sale) => {
       };
   }
 
-  const insertSale = await model.register(sale);
+  const insertSale = await model.createSale(sale);
 
   return insertSale;
 };
@@ -34,7 +34,7 @@ const getAllSales = async () => {
 const getSalesById = async (id) => {
   const sale = await model.getSalesById(id);
 
-  if (!sale) {
+  if (!sale || sale.length === 0) {
     return {
       code: 'not_found',
       message: 'Sale not found',
@@ -61,13 +61,27 @@ const updateSale = async (product, id) => {
     _id: id,
     itensSold,
   };
-  console.log(result.id);
+
   return result;
 };
 
+const deleteSale = async (id) => {
+  const sale = await model.deleteSale(id);
+
+  if (!sale) {
+    return {
+      code: 'invalid_data',
+      message: 'Wrong sale ID format',
+    };
+  }
+
+  return sale;
+};
+
 module.exports = {
-  register,
+  createSale,
   getAllSales,
   getSalesById,
   updateSale,
+  deleteSale,
 };

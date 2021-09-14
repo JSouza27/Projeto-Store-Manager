@@ -1,7 +1,24 @@
 const { ObjectId } = require('mongodb');
 const connection = require('./connection');
 
-const TABLE = 'sales';
+const SALES_TABLE = 'sales';
+const PRODUCTS_TABLE = 'products';
+
+const decrementProducts = async (id, quantity) => {
+  const connect = await connection();
+  await connect.collection(PRODUCTS_TABLE).updateOne(
+    { _id: ObjectId(id) },
+    { $inc: { quantity: -quantity } },
+  );
+};
+
+const incrementProducts = async (id, quantity) => {
+  const connect = await connection();
+  await connect.collection(PRODUCTS_TABLE).updateOne(
+    { _id: ObjectId(id) },
+    { $inc: { quantity } },
+  );
+};
 
 const findSales = async (id) => {
   if (!ObjectId.isValid(id)) {
@@ -9,14 +26,18 @@ const findSales = async (id) => {
   }
 
   const connect = await connection();
-  const searchProduct = await connect.collection(TABLE).find({ _id: new ObjectId(id) }).toArray();
+  const searchProduct = await connect.collection(SALES_TABLE).find({
+    _id: new ObjectId(id) }).toArray();
 
   return searchProduct;
 };
 
-const register = async (sale) => {
+const createSale = async (sale) => {
   const connect = await connection();
-  const db = await connect.collection(TABLE).insertOne({
+
+  await sale.forEach(({ productId, quantity }) => decrementProducts(productId, quantity));
+
+  const db = await connect.collection(SALES_TABLE).insertOne({
     itensSold: sale,
   });
 
@@ -25,7 +46,7 @@ const register = async (sale) => {
 
 const getAllSales = async () => {
   const connect = await connection();
-  const db = await connect.collection(TABLE).find({}).toArray();
+  const db = await connect.collection(SALES_TABLE).find({}).toArray();
   return db;
 };
 
@@ -35,9 +56,9 @@ const getSalesById = async (id) => {
   }
 
   const connect = await connection();
-  const searchSale = await connect.collection(TABLE).findOne({
-    sales: { $elemMatch: { _id: new ObjectId(id) } },
-  });
+  const searchSale = await connect.collection(SALES_TABLE).find({
+    _id: new ObjectId(id),
+  }).toArray();
 
   return searchSale;
 };
@@ -48,7 +69,7 @@ const updateSale = async (product, id) => {
   }
 
   const connect = await connection();
-  const updateQuery = await connect.collection(TABLE).updateOne(
+  const updateQuery = await connect.collection(SALES_TABLE).updateOne(
     { _id: ObjectId(id) },
     { $set: product },
   );
@@ -56,10 +77,26 @@ const updateSale = async (product, id) => {
   return updateQuery;
 };
 
+const deleteSale = async (id) => {
+  if (!ObjectId.isValid(id)) {
+    return null;
+  }
+
+  const [sale] = await getSalesById(id);
+
+  await sale.itensSold.forEach(({ productId, quantity }) => incrementProducts(productId, quantity));
+
+  const connect = await connection();
+  await connect.collection(SALES_TABLE).deleteOne({ _id: new ObjectId(id) });
+
+  return sale;
+};
+
 module.exports = {
-  register,
+  createSale,
   findSales,
   getAllSales,
   getSalesById,
   updateSale,
+  deleteSale,
 };
