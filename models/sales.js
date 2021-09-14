@@ -92,6 +92,17 @@ const deleteSale = async (id) => {
   return sale;
 };
 
+const findProduct = async (id) => {
+  if (!ObjectId.isValid(id)) {
+    return null;
+  }
+
+  const connect = await connection();
+  const find = connect.collection(PRODUCTS_TABLE).find({ _id: ObjectId(id) }).toArray();
+
+  return find;
+};
+
 module.exports = {
   createSale,
   findSales,
@@ -99,4 +110,5 @@ module.exports = {
   getSalesById,
   updateSale,
   deleteSale,
+  findProduct,
 };

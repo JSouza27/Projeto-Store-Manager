@@ -13,6 +13,21 @@ const createSale = async (sale) => {
       };
   }
 
+  const stockValidation = await Promise.allSettled(sale.map(async ({ productId, quantity }) => {
+    const products = await model.findProduct(productId);
+
+    return products.some((product) => product.quantity > quantity);
+  }));
+
+  const result = stockValidation.every(({ value }) => value === false);
+
+  if (result) {
+    return {
+        code: 'stock_problem',
+        message: 'Such amount is not permitted to sell',
+      };
+  }
+
   const insertSale = await model.createSale(sale);
 
   return insertSale;

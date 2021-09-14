@@ -10,7 +10,11 @@ const createSale = async (req, res) => {
 
   const newSale = await service.createSale(sales);
 
-  if (newSale.code) {
+  if (newSale.code === 'stock_problem') {
+    return res.status(HTTP_NOT_FOUND).json({ err: newSale });
+  }
+
+  if (newSale.code === 'invalid_data') {
     return res.status(HTTP_UNPROCESSABLE_ENTITY).json({ err: newSale });
   }
 
