@@ -1,71 +1,65 @@
 const service = require('../services/serviceSales');
-const {
-  HTTP_UNPROCESSABLE_ENTITY,
-  HTTP_OK_STATUS,
-  HTTP_NOT_FOUND,
-} = require('../middlewares/HttpStatus');
+const { HTTP_INTERNAL_SERVER_ERROR } = require('../schemas/HttpStatus');
+
+const UNEXPECTED_ERROR = 'unexpected error';
 
 const createSale = async (req, res) => {
-  const sales = req.body;
+  try {
+    const sales = req.body;
 
-  const newSale = await service.createSale(sales);
+    const { status, message } = await service.createSale(sales);
 
-  if (newSale.code === 'stock_problem') {
-    return res.status(HTTP_NOT_FOUND).json({ err: newSale });
+    return res.status(status).json(message);
+  } catch (e) {
+    return res.status(HTTP_INTERNAL_SERVER_ERROR).json({ message: UNEXPECTED_ERROR });
   }
-
-  if (newSale.code === 'invalid_data') {
-    return res.status(HTTP_UNPROCESSABLE_ENTITY).json({ err: newSale });
-  }
-
-  return res.status(HTTP_OK_STATUS).json(newSale.ops[0]);
 };
 
 const getAllSales = async (_req, res) => {
-  const getAll = await service.getAllSales();
+  try {
+    const { status, message } = await service.getAllSales();
 
-  if (getAll.code) {
-    return res.status(HTTP_NOT_FOUND).json({ err: getAll });
+    return res.status(status).json(message);
+  } catch (e) {
+    return res.status(HTTP_INTERNAL_SERVER_ERROR).json({ message: UNEXPECTED_ERROR });
   }
-
-  return res.status(HTTP_OK_STATUS).json({ sales: getAll });
 };
 
 const getSalesById = async (req, res) => {
-  const { id } = req.params;
+  try {
+    const { id } = req.params;
 
-  const getSale = await service.getSalesById(id);
+    const { status, message } = await service.getSalesById(id);
 
-  if (getSale.code) {
-    return res.status(HTTP_NOT_FOUND).json({ err: getSale });
+    return res.status(status).json(message);
+  } catch (e) {
+    return res.status(HTTP_INTERNAL_SERVER_ERROR).json({ message: UNEXPECTED_ERROR });
   }
-
-  return res.status(HTTP_OK_STATUS).json({ sales: getSale });
 };
 
 const updateSale = async (req, res) => {
-  const itensSold = req.body;
-  const { id } = req.params;
+  try {
+    const itensSold = req.body;
+    const { id } = req.params;
 
-  const newSale = await service.updateSale({ itensSold }, id);
+    const { status, message } = await service.updateSale({ itensSold }, id);
 
-  if (newSale.code) {
-    return res.status(HTTP_UNPROCESSABLE_ENTITY).json({ err: newSale });
+    return res.status(status).json(message);
+  } catch (e) {
+    return res.status(HTTP_INTERNAL_SERVER_ERROR).json({ message: UNEXPECTED_ERROR });
   }
-
-  return res.status(HTTP_OK_STATUS).json(newSale);
 };
 
 const deleteSale = async (req, res) => {
-  const { id } = req.params;
+  try {
+    const { id } = req.params;
 
-  const isDelete = await service.deleteSale(id);
+    const { status, message } = await service.deleteSale(id);
 
-  if (isDelete.code === 'invalid_data') {
-    return res.status(HTTP_UNPROCESSABLE_ENTITY).json({ err: isDelete });
+    return res.status(status).json(message);
+  } catch (e) {
+    return res.status(HTTP_INTERNAL_SERVER_ERROR).json({ message: UNEXPECTED_ERROR });
   }
-
-  return res.status(HTTP_OK_STATUS).json(isDelete);
 };
 
 module.exports = {

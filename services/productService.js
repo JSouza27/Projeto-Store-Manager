@@ -1,10 +1,21 @@
 const model = require('../models/products');
-const { validateName, validateQuantity, validateGetProduct } = require('../schemas/ProductSchema');
+const {
+  HTTP_CREATED,
+  HTTP_OK_STATUS,
+} = require('../schemas/HttpStatus');
+const {
+  validateName,
+  validateQuantity,
+  validateGetProduct,
+  alreadyExixst,
+} = require('../schemas/ProductSchema');
 
 const create = async (products) => {
   const { name, quantity } = products;
 
   const result = await model.findByName(name);
+
+  if (result) return alreadyExixst();
 
   const validationName = await validateName(name);
   const validationQuantity = await validateQuantity(quantity);
@@ -12,14 +23,11 @@ const create = async (products) => {
   if (validationName.message) return validationName;
   if (validationQuantity.message) return validationQuantity;
 
-  if (result) {
-    return {
-      code: 'invalid_data',
-      message: 'Product already exists',
-    };
-  }
-
-  const newProduct = await model.create(products);
+  const createReturn = await model.create(products);
+  const newProduct = {
+    status: HTTP_CREATED,
+    message: createReturn,
+  };
 
   return newProduct;
 };
@@ -35,33 +43,35 @@ const getProductById = async (id) => {
 const getAllProducts = async () => {
   const getAll = await model.getAllProducts();
 
-  return getAll;
+  const result = {
+    status: HTTP_OK_STATUS,
+    message: {
+      products: getAll,
+    },
+  };
+
+  return result;
 };
 
 const updateProduct = async (id, name, quantity) => {
-  let result = {};
-
   const validationName = await validateName(name);
   const validationQuantity = await validateQuantity(quantity);
 
   if (validationName.message) return validationName;
   if (validationQuantity.message) return validationQuantity;
 
-  const product = await model.updateProduct(id, name, quantity);
+  await model.updateProduct(id, name, quantity);
 
-  if (product.result.ok === 1) {
-      result = {
-        id,
-        name,
-        quantity,
-    };
-  }
+  const result = {
+    status: HTTP_OK_STATUS,
+    message: { id, name, quantity },
+  };
 
   return result;
 };
 
 const removeProduct = async (id) => {
-  const isProduct = await getProductById(id);
+  const isProduct = await model.getProductById(id);
 
   const validateProducts = await validateGetProduct(isProduct);
 

@@ -1,17 +1,16 @@
 const model = require('../models/sales');
-
-const validateQuantity = (sale) => sale.some(({ quantity }) =>
-  quantity < 1 || typeof quantity !== 'number');
+const { HTTP_OK_STATUS } = require('../schemas/HttpStatus');
+const {
+  nonExistentSale,
+  checkQuantity,
+  cannotDelete,
+  checkStock,
+} = require('../schemas/SaleSchema');
 
 const createSale = async (sale) => {
-  const validation = await validateQuantity(sale);
+  const validation = await checkQuantity(sale);
 
-  if (validation) {
-    return {
-        code: 'invalid_data',
-        message: 'Wrong product ID or invalid quantity',
-      };
-  }
+  if (validation.message) return validation;
 
   const stockValidation = await Promise.allSettled(sale.map(async ({ productId, quantity }) => {
     const products = await model.findProduct(productId);
@@ -19,78 +18,89 @@ const createSale = async (sale) => {
     return products.some((product) => product.quantity > quantity);
   }));
 
-  const result = stockValidation.every(({ value }) => value === false);
+  const returnValidation = await checkStock(stockValidation);
 
-  if (result) {
-    return {
-        code: 'stock_problem',
-        message: 'Such amount is not permitted to sell',
-      };
-  }
+  if (returnValidation.message) return returnValidation;
 
-  const insertSale = await model.createSale(sale);
+  await sale.forEach(({ productId, quantity }) =>
+    model.decrementProducts(productId, quantity));
 
-  return insertSale;
+  const { ops } = await model.createSale(sale);
+
+  const newSale = {
+    status: HTTP_OK_STATUS,
+    message: ops[0],
+  };
+
+  return newSale;
 };
 
 const getAllSales = async () => {
   const allSales = await model.getAllSales();
+  const valitationSale = await nonExistentSale(allSales);
 
-  if (allSales.length === 0) {
-    return {
-      code: 'not_found',
-      message: 'Sale not found',
-    };
-  }
+  if (valitationSale.message) return valitationSale;
 
-  return allSales;
+  const returnAllSales = {
+    status: HTTP_OK_STATUS,
+    message: {
+        sales: allSales,
+    },
+  };
+
+  return returnAllSales;
 };
 
 const getSalesById = async (id) => {
   const sale = await model.getSalesById(id);
+  const valitationSale = await nonExistentSale(sale);
 
-  if (!sale || sale.length === 0) {
-    return {
-      code: 'not_found',
-      message: 'Sale not found',
-    };
-  }
+  if (valitationSale.message) return valitationSale;
 
-  return sale;
+  const returnSaleById = {
+    status: HTTP_OK_STATUS,
+    message: {
+        sales: sale,
+    },
+  };
+
+  return returnSaleById;
 };
 
 const updateSale = async (product, id) => {
   const { itensSold } = product;
-  const validation = await validateQuantity(itensSold);
+  const validation = await checkQuantity(itensSold);
 
-  if (validation) {
-    return {
-        code: 'invalid_data',
-        message: 'Wrong product ID or invalid quantity',
-      };
-  }
+  if (validation.message) return validation;
 
   await model.updateSale(product, id);
 
   const result = {
-    _id: id,
-    itensSold,
+    status: HTTP_OK_STATUS,
+    message: {
+      _id: id,
+      itensSold,
+    },
   };
-
   return result;
 };
 
 const deleteSale = async (id) => {
   const sale = await model.deleteSale(id);
 
-  if (!sale) {
-    return {
-      code: 'invalid_data',
-      message: 'Wrong sale ID format',
-    };
-  }
+  const checkDelete = await cannotDelete(sale);
 
-  return sale;
+  if (checkDelete.message) return checkDelete;
+
+  await sale.itensSold.forEach(({ productId, quantity }) =>
+    model.incrementProducts(productId, quantity));
+
+  const itemDeleted = {
+    status: HTTP_OK_STATUS,
+    message: sale,
+  };
+
+  return itemDeleted;
 };
 
 module.exports = {

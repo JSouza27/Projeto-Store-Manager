@@ -52,6 +52,7 @@ const removeProduct = async (id) => {
   if (!ObjectId.isValid(id)) {
     return null;
   }
+
   const connect = await connection();
   const product = await connect.collection(TABLE).deleteOne({ _id: new ObjectId(id) });
 

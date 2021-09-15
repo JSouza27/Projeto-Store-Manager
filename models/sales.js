@@ -35,8 +35,6 @@ const findSales = async (id) => {
 const createSale = async (sale) => {
   const connect = await connection();
 
-  await sale.forEach(({ productId, quantity }) => decrementProducts(productId, quantity));
-
   const db = await connect.collection(SALES_TABLE).insertOne({
     itensSold: sale,
   });
@@ -84,8 +82,6 @@ const deleteSale = async (id) => {
 
   const [sale] = await getSalesById(id);
 
-  await sale.itensSold.forEach(({ productId, quantity }) => incrementProducts(productId, quantity));
-
   const connect = await connection();
   await connect.collection(SALES_TABLE).deleteOne({ _id: new ObjectId(id) });
 
@@ -111,4 +107,6 @@ module.exports = {
   updateSale,
   deleteSale,
   findProduct,
+  decrementProducts,
+  incrementProducts,
 };
