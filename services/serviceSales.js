@@ -10,7 +10,7 @@ const {
 const createSale = async (sale) => {
   const validation = await checkQuantity(sale);
 
-  if (validation.message) return validation;
+  if (validation.notification) return validation;
 
   const stockValidation = await Promise.allSettled(sale.map(async ({ productId, quantity }) => {
     const products = await model.findProduct(productId);
@@ -20,7 +20,7 @@ const createSale = async (sale) => {
 
   const returnValidation = await checkStock(stockValidation);
 
-  if (returnValidation.message) return returnValidation;
+  if (returnValidation.notification) return returnValidation;
 
   await sale.forEach(({ productId, quantity }) =>
     model.decrementProducts(productId, quantity));
@@ -29,7 +29,7 @@ const createSale = async (sale) => {
 
   const newSale = {
     status: HTTP_OK_STATUS,
-    message: ops[0],
+    notification: ops[0],
   };
 
   return newSale;
@@ -39,11 +39,11 @@ const getAllSales = async () => {
   const allSales = await model.getAllSales();
   const valitationSale = await nonExistentSale(allSales);
 
-  if (valitationSale.message) return valitationSale;
+  if (valitationSale.notification) return valitationSale;
 
   const returnAllSales = {
     status: HTTP_OK_STATUS,
-    message: {
+    notification: {
         sales: allSales,
     },
   };
@@ -55,11 +55,11 @@ const getSalesById = async (id) => {
   const sale = await model.getSalesById(id);
   const valitationSale = await nonExistentSale(sale);
 
-  if (valitationSale.message) return valitationSale;
+  if (valitationSale.notification) return valitationSale;
 
   const returnSaleById = {
     status: HTTP_OK_STATUS,
-    message: {
+    notification: {
         sales: sale,
     },
   };
@@ -71,13 +71,13 @@ const updateSale = async (product, id) => {
   const { itensSold } = product;
   const validation = await checkQuantity(itensSold);
 
-  if (validation.message) return validation;
+  if (validation.notification) return validation;
 
   await model.updateSale(product, id);
 
   const result = {
     status: HTTP_OK_STATUS,
-    message: {
+    notification: {
       _id: id,
       itensSold,
     },
@@ -90,14 +90,14 @@ const deleteSale = async (id) => {
 
   const checkDelete = await cannotDelete(sale);
 
-  if (checkDelete.message) return checkDelete;
+  if (checkDelete.notification) return checkDelete;
 
   await sale.itensSold.forEach(({ productId, quantity }) =>
     model.incrementProducts(productId, quantity));
 
   const itemDeleted = {
     status: HTTP_OK_STATUS,
-    message: sale,
+    notification: sale,
   };
 
   return itemDeleted;

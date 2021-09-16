@@ -20,13 +20,13 @@ const create = async (products) => {
   const validationName = await validateName(name);
   const validationQuantity = await validateQuantity(quantity);
 
-  if (validationName.message) return validationName;
-  if (validationQuantity.message) return validationQuantity;
+  if (validationName.notification) return validationName;
+  if (validationQuantity.notification) return validationQuantity;
 
   const createReturn = await model.create(products);
   const newProduct = {
     status: HTTP_CREATED,
-    message: createReturn,
+    notification: createReturn,
   };
 
   return newProduct;
@@ -45,7 +45,7 @@ const getAllProducts = async () => {
 
   const result = {
     status: HTTP_OK_STATUS,
-    message: {
+    notification: {
       products: getAll,
     },
   };
@@ -57,14 +57,14 @@ const updateProduct = async (id, name, quantity) => {
   const validationName = await validateName(name);
   const validationQuantity = await validateQuantity(quantity);
 
-  if (validationName.message) return validationName;
-  if (validationQuantity.message) return validationQuantity;
+  if (validationName.notification) return validationName;
+  if (validationQuantity.notification) return validationQuantity;
 
   await model.updateProduct(id, name, quantity);
 
   const result = {
     status: HTTP_OK_STATUS,
-    message: { id, name, quantity },
+    notification: { id, name, quantity },
   };
 
   return result;

@@ -11,7 +11,7 @@ const validateSales = (sale) => {
   if (result) {
     return {
       status: HTTP_UNPROCESSABLE_ENTITY,
-      message: { err: {
+      notification: { err: {
           code: errorCode.invalidData,
           message: errorMessage.lessThanZero,
         },
@@ -26,7 +26,7 @@ const checkSales = (arr) => {
   if (!arr || arr.length === 0 || arr === null) {
     return {
       status: HTTP_NOT_FOUND,
-      message: {
+      notification: {
         err: {
           code: errorCode.notFound,
           message: errorMessage.notFound,
@@ -42,7 +42,7 @@ const isSale = (sale) => {
   if (!sale) {
     return {
       status: HTTP_UNPROCESSABLE_ENTITY,
-      message: {
+      notification: {
         err: {
           code: errorCode.invalidData,
           message: errorMessage.wrongSale,
@@ -60,7 +60,7 @@ const validationStock = (array) => {
   if (resultBool) {
     return {
       status: HTTP_NOT_FOUND,
-      message: {
+      notification: {
         err: {
           code: errorCode.stockProblem,
           message: errorMessage.quantityLessThanZero,

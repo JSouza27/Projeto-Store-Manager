@@ -7,9 +7,9 @@ const createSale = async (req, res) => {
   try {
     const sales = req.body;
 
-    const { status, message } = await service.createSale(sales);
+    const { status, notification } = await service.createSale(sales);
 
-    return res.status(status).json(message);
+    return res.status(status).json(notification);
   } catch (e) {
     return res.status(HTTP_INTERNAL_SERVER_ERROR).json({ message: UNEXPECTED_ERROR });
   }
@@ -17,9 +17,9 @@ const createSale = async (req, res) => {
 
 const getAllSales = async (_req, res) => {
   try {
-    const { status, message } = await service.getAllSales();
+    const { status, notification } = await service.getAllSales();
 
-    return res.status(status).json(message);
+    return res.status(status).json(notification);
   } catch (e) {
     return res.status(HTTP_INTERNAL_SERVER_ERROR).json({ message: UNEXPECTED_ERROR });
   }
@@ -29,9 +29,9 @@ const getSalesById = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const { status, message } = await service.getSalesById(id);
+    const { status, notification } = await service.getSalesById(id);
 
-    return res.status(status).json(message);
+    return res.status(status).json(notification);
   } catch (e) {
     return res.status(HTTP_INTERNAL_SERVER_ERROR).json({ message: UNEXPECTED_ERROR });
   }
@@ -42,9 +42,9 @@ const updateSale = async (req, res) => {
     const itensSold = req.body;
     const { id } = req.params;
 
-    const { status, message } = await service.updateSale({ itensSold }, id);
+    const { status, notification } = await service.updateSale({ itensSold }, id);
 
-    return res.status(status).json(message);
+    return res.status(status).json(notification);
   } catch (e) {
     return res.status(HTTP_INTERNAL_SERVER_ERROR).json({ message: UNEXPECTED_ERROR });
   }
@@ -54,9 +54,9 @@ const deleteSale = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const { status, message } = await service.deleteSale(id);
+    const { status, notification } = await service.deleteSale(id);
 
-    return res.status(status).json(message);
+    return res.status(status).json(notification);
   } catch (e) {
     return res.status(HTTP_INTERNAL_SERVER_ERROR).json({ message: UNEXPECTED_ERROR });
   }
