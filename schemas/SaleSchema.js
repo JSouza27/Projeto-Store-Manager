@@ -1,21 +1,8 @@
+const { errorMessage, errorCode } = require('./index');
 const {
   HTTP_NOT_FOUND,
   HTTP_UNPROCESSABLE_ENTITY,
 } = require('./HttpStatus');
-
-const codeError = {
-  invalidData: 'invalid_data',
-  stockProblem: 'stock_problem',
-  notFound: 'not_found',
-};
-
-const erros = {
-  lessThanZero: 'Wrong product ID or invalid quantity',
-  notFound: 'Sale not found',
-  wrongSale: 'Wrong sale ID format',
-  stockProblem: 'stock_problem',
-  quantityLessThanZero: 'Such amount is not permitted to sell',
-};
 
 const validateSales = (sale) => {
   const result = sale.some(({ quantity }) =>
@@ -25,8 +12,8 @@ const validateSales = (sale) => {
     return {
       status: HTTP_UNPROCESSABLE_ENTITY,
       message: { err: {
-          code: codeError.invalidData,
-          message: erros.lessThanZero,
+          code: errorCode.invalidData,
+          message: errorMessage.lessThanZero,
         },
       },
     };
@@ -41,8 +28,8 @@ const checkSales = (arr) => {
       status: HTTP_NOT_FOUND,
       message: {
         err: {
-          code: codeError.notFound,
-          message: erros.notFound,
+          code: errorCode.notFound,
+          message: errorMessage.notFound,
         },
       },
     };
@@ -57,8 +44,8 @@ const isSale = (sale) => {
       status: HTTP_UNPROCESSABLE_ENTITY,
       message: {
         err: {
-          code: codeError.invalidData,
-          message: erros.wrongSale,
+          code: errorCode.invalidData,
+          message: errorMessage.wrongSale,
         },
       },
     };
@@ -75,8 +62,8 @@ const validationStock = (array) => {
       status: HTTP_NOT_FOUND,
       message: {
         err: {
-          code: codeError.stockProblem,
-          message: erros.quantityLessThanZero,
+          code: errorCode.stockProblem,
+          message: errorMessage.quantityLessThanZero,
         },
       },
     };
