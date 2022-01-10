@@ -28,13 +28,13 @@ seguindo os comandos abaixo.
 ### 1° Abra o terminal do seu sistema
 
 ```bash
-  git clone URL
+  git clone git@github.com:JSouza27/Projeto-Store-Manager.git
 ```
 
 ### 2° Abra a pasta da API com o comando abaixo
 
 ```bash
-  cd store-manager-api
+  cd Projeto-Store-Manager
 ```
 
 ### 3° Agora instale as dependências com um dos comandos abaixo
