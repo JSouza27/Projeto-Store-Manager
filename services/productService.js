@@ -1,3 +1,4 @@
+const { ObjectId } = require('mongodb');
 const model = require('../models/products');
 const {
   HTTP_CREATED,
@@ -33,6 +34,11 @@ const create = async (products) => {
 };
 
 const getProductById = async (id) => {
+  if (!ObjectId.isValid(id)) {
+    const result = null;
+    return validateGetProduct(result);
+  }
+
   const getProduct = await model.getProductById(id);
 
   const validateProducts = await validateGetProduct(getProduct);
@@ -54,6 +60,10 @@ const getAllProducts = async () => {
 };
 
 const updateProduct = async (id, name, quantity) => {
+  if (!ObjectId.isValid(id)) {
+    return null;
+  }
+
   const validationName = await validateName(name);
   const validationQuantity = await validateQuantity(quantity);
 
@@ -71,6 +81,11 @@ const updateProduct = async (id, name, quantity) => {
 };
 
 const removeProduct = async (id) => {
+  if (!ObjectId.isValid(id)) {
+    const result = null;
+    return validateGetProduct(result);
+  }
+
   const isProduct = await model.getProductById(id);
 
   const validateProducts = await validateGetProduct(isProduct);

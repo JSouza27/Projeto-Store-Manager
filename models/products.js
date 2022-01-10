@@ -1,5 +1,5 @@
 const { ObjectId } = require('mongodb');
-const connection = require('./connection');
+const { connection } = require('./connection');
 
 const TABLE = 'products';
 
@@ -18,12 +18,8 @@ const findByName = async (name) => {
 };
 
 const getProductById = async (id) => {
-  if (!ObjectId.isValid(id)) {
-    return null;
-  }
-
   const connect = await connection();
-  const findProduct = await connect.collection(TABLE).findOne(new ObjectId(id));
+  const findProduct = await connect.collection(TABLE).findOne({ _id: new ObjectId(id) });
 
   return findProduct;
 };
@@ -36,10 +32,6 @@ const getAllProducts = async () => {
 };
 
 const updateProduct = async (id, name, quantity) => {
-  if (!ObjectId.isValid(id)) {
-    return null;
-  }
-
   const connect = await connection();
   const product = await connect.collection(TABLE).update({ _id: new ObjectId(id) }, {
     $set: { name, quantity },
@@ -49,10 +41,6 @@ const updateProduct = async (id, name, quantity) => {
 };
 
 const removeProduct = async (id) => {
-  if (!ObjectId.isValid(id)) {
-    return null;
-  }
-
   const connect = await connection();
   const product = await connect.collection(TABLE).deleteOne({ _id: new ObjectId(id) });
 

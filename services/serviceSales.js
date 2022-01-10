@@ -1,3 +1,4 @@
+const { ObjectId } = require('mongodb');
 const model = require('../models/sales');
 const { HTTP_OK_STATUS } = require('../schemas/HttpStatus');
 const {
@@ -52,6 +53,11 @@ const getAllSales = async () => {
 };
 
 const getSalesById = async (id) => {
+  if (!ObjectId.isValid(id)) {
+    const result = null;
+    return nonExistentSale(result);
+  }
+
   const sale = await model.getSalesById(id);
   const valitationSale = await nonExistentSale(sale);
 
@@ -68,6 +74,10 @@ const getSalesById = async (id) => {
 };
 
 const updateSale = async (product, id) => {
+  if (!ObjectId.isValid(id)) {
+    return null;
+  }
+
   const { itensSold } = product;
   const validation = await checkQuantity(itensSold);
 
@@ -86,6 +96,11 @@ const updateSale = async (product, id) => {
 };
 
 const deleteSale = async (id) => {
+  if (!ObjectId.isValid(id)) {
+    const result = null;
+    return cannotDelete(result);
+  }
+
   const sale = await model.deleteSale(id);
 
   const checkDelete = await cannotDelete(sale);

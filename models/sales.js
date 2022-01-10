@@ -1,5 +1,5 @@
 const { ObjectId } = require('mongodb');
-const connection = require('./connection');
+const { connection } = require('./connection');
 
 const SALES_TABLE = 'sales';
 const PRODUCTS_TABLE = 'products';
@@ -20,18 +20,6 @@ const incrementProducts = async (id, quantity) => {
   );
 };
 
-const findSales = async (id) => {
-  if (!ObjectId.isValid(id)) {
-    return null;
-  }
-
-  const connect = await connection();
-  const searchProduct = await connect.collection(SALES_TABLE).find({
-    _id: new ObjectId(id) }).toArray();
-
-  return searchProduct;
-};
-
 const createSale = async (sale) => {
   const connect = await connection();
 
@@ -49,10 +37,6 @@ const getAllSales = async () => {
 };
 
 const getSalesById = async (id) => {
-  if (!ObjectId.isValid(id)) {
-    return null;
-  }
-
   const connect = await connection();
   const searchSale = await connect.collection(SALES_TABLE).find({
     _id: new ObjectId(id),
@@ -62,10 +46,6 @@ const getSalesById = async (id) => {
 };
 
 const updateSale = async (product, id) => {
-  if (!ObjectId.isValid(id)) {
-    return null;
-  }
-
   const connect = await connection();
   const updateQuery = await connect.collection(SALES_TABLE).updateOne(
     { _id: ObjectId(id) },
@@ -76,10 +56,6 @@ const updateSale = async (product, id) => {
 };
 
 const deleteSale = async (id) => {
-  if (!ObjectId.isValid(id)) {
-    return null;
-  }
-
   const [sale] = await getSalesById(id);
 
   const connect = await connection();
@@ -101,7 +77,6 @@ const findProduct = async (id) => {
 
 module.exports = {
   createSale,
-  findSales,
   getAllSales,
   getSalesById,
   updateSale,
