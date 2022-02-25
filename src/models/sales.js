@@ -1,11 +1,11 @@
 const { ObjectId } = require('mongodb');
-const { connection } = require('./connection');
+const { getConnection } = require('./connection');
 
 const SALES_TABLE = 'sales';
 const PRODUCTS_TABLE = 'products';
 
 const decrementProducts = async (id, quantity) => {
-  const connect = await connection();
+  const connect = await getConnection();
   await connect.collection(PRODUCTS_TABLE).updateOne(
     { _id: ObjectId(id) },
     { $inc: { quantity: -quantity } },
@@ -13,7 +13,7 @@ const decrementProducts = async (id, quantity) => {
 };
 
 const incrementProducts = async (id, quantity) => {
-  const connect = await connection();
+  const connect = await getConnection();
   await connect.collection(PRODUCTS_TABLE).updateOne(
     { _id: ObjectId(id) },
     { $inc: { quantity } },
@@ -21,7 +21,7 @@ const incrementProducts = async (id, quantity) => {
 };
 
 const createSale = async (sale) => {
-  const connect = await connection();
+  const connect = await getConnection();
 
   const db = await connect.collection(SALES_TABLE).insertOne({
     itensSold: sale,
@@ -31,13 +31,13 @@ const createSale = async (sale) => {
 };
 
 const getAllSales = async () => {
-  const connect = await connection();
+  const connect = await getConnection();
   const db = await connect.collection(SALES_TABLE).find({}).toArray();
   return db;
 };
 
 const getSalesById = async (id) => {
-  const connect = await connection();
+  const connect = await getConnection();
   const searchSale = await connect.collection(SALES_TABLE).find({
     _id: new ObjectId(id),
   }).toArray();
@@ -46,7 +46,7 @@ const getSalesById = async (id) => {
 };
 
 const updateSale = async (product, id) => {
-  const connect = await connection();
+  const connect = await getConnection();
   const updateQuery = await connect.collection(SALES_TABLE).updateOne(
     { _id: ObjectId(id) },
     { $set: product },
@@ -58,7 +58,7 @@ const updateSale = async (product, id) => {
 const deleteSale = async (id) => {
   const [sale] = await getSalesById(id);
 
-  const connect = await connection();
+  const connect = await getConnection();
   await connect.collection(SALES_TABLE).deleteOne({ _id: new ObjectId(id) });
 
   return sale;
@@ -69,7 +69,7 @@ const findProduct = async (id) => {
     return null;
   }
 
-  const connect = await connection();
+  const connect = await getConnection();
   const find = connect.collection(PRODUCTS_TABLE).find({ _id: ObjectId(id) }).toArray();
 
   return find;

@@ -1,17 +1,13 @@
 const sinon = require('sinon');
 const { expect } = require('chai');
 const { MongoClient } = require('mongodb');
+// const { getConnection } = require('../../src/models/mongoMockConnection')
+const Products = require('../../src/models/products');
+const SalesModel = require('../../src/models/sales');
 const { MongoMemoryServer } = require('mongodb-memory-server');
+const mongoConnection = require('../../src/models/connection');
 
-const mongoConnection = require('../../models/connection');
-const ProductsModel = require('../../models/products');
-const SalesModel = require('../../models/sales');
-
-const DB_NAME = 'StoreManagerFake';
-const OPTIONS = {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-};
+const DB_NAME = 'StoreManager';
 
 describe('Testando comunicação com a tabela "products', () => {
   const payloadProducts = {
@@ -19,94 +15,46 @@ describe('Testando comunicação com a tabela "products', () => {
     "quantity": 100
   }
 
-  const DBServer = new MongoMemoryServer();
-  let connectionMock;
+  // let connectionMock;
+  const DB_SERVER = new MongoMemoryServer();
 
+  // before(async () => {
+  //   connectionMock = await getConnection();
+  //   sinon.stub(MongoClient, 'connect').resolves(connectionMock);
+  // });
+
+  // after(async() => {
+  //   await connectionMock.db(DB_NAME).collection('products').drop();
+  //   MongoClient.connect.restore();
+  // });
   before(async () => {
-    const URLMock = await DBServer.getUri();
-    connectionMock = await MongoClient
-     .connect(URLMock, {
-       useNewUrlParser: true,
-       useUnifiedTopology: true
-     })
-     .then((conn) => conn.db('model_example'));
+    const URLMock = await DB_SERVER.getUri();
+    const connectionMock = await MongoClient
+      .connect(URLMock, { useNewUrlParser: true, useUnifiedTopology: true })
+      .then((conn) => conn.db(DB_NAME));
 
-
-    sinon.stub(mongoConnection, 'connection')
-      .resolves(connectionMock);
+    sinon.stub(mongoConnection, 'getConnection').resolves(connectionMock);
   });
 
-  after(() => {
-    mongoConnection.connection.restore();
+  after(async () => {
+    sinon.restore();
+    await DB_SERVER.stop();
   });
 
   describe('Verificando se é possivel criar um produto', () =>{
 
-    // after(async () => {
-    //   const db = await mongoConnection.connection();
-    //   await db.collection('products').drop();
-    // });
-
-
-    it('deve retornar um objeto se inserido com sucesso', async () => {
-      const response = await ProductsModel.create(payloadProducts);
-
+    it('retorna um objeto', async() => {
+      const response = await Products.create(payloadProducts);
       expect(response).to.be.a('object');
     });
 
-    // it('o objeto retornado deve ter o "id" do novo produto criado', async () => {
-    //   const response = await ProductsModel.create(newProduct);
-
-    //   expect(response).to.have.property('_id');
-    // })
-
-    // it('o objeto deve conter a chave "name" e "quantity"', async () => {
-    //   const response = await ProductsModel.create(newProduct);
-
-    //   expect(response).to.have.property('name');
-    //   expect(response).to.have.property('quantity');
-    // });
+    it('O objeto possui o "id" do novo product inserido', async () => {
+      const response = await Products.create(payloadProducts);
+      // console.log(response);
+      expect(response).to.have.a.property('_id');
+    });
   });
 
-  // describe('Verificando se é possivel listar os produtos cadastrados', () => {
-  //   const product = {
-  //     "name": "Produto 3",
-  //     "quantity": 10
-  //   }
-
-  //   let result;
-
-  //   before(async () => {
-  //     const db = await mongoConnection.connection();
-  //     await db.collection(DB_NAME).insertOne(product);
-  //     result = await db.collection(DB_NAME).findOne();
-  //   });
-
-  //   after(async () => {
-  //     const db = await mongoConnection.connection();
-  //     await db.collection(DB_NAME).drop();
-  //   });
-
-  //   it('o retorno deve ser um array', async () =>{
-  //     await co
-  //     const response = await ProductsModel.getAllProducts();
-
-  //     expect(response).to.be.an('array');
-  //   });
-
-  //   it('deve ser possivel listar todos os produtos da tabela "products"', async () =>{
-  //     const response = await ProductsModel.getAllProducts();
-
-  //     expect(response).to.be.not.empty;
-  //   });
-
-  //   it('deve ser possivel listar os produtos da tabela "products" pelo ID dele', async () =>{
-  //     const id = result['_id'];
-  //     const response = await ProductsModel.getProductById(id);
-  //     console.log(response);
-  //     // expect(response.name).to.eql(newProduct.name);
-  //   });
-  // });
 });
 
 describe('Testando comunicação com a tabela "sales', () => {});
